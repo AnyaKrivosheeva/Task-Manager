@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { Task } from "../types/task";
+import type { TaskStatus } from "../types/task";
 
 interface TasksState {
     items: Task[];
@@ -28,8 +29,18 @@ const tasksSlice = createSlice({
                 state.items[index] = action.payload;
             }
         },
+        setTaskStatus: (
+            state,
+            action: PayloadAction<{ id: string; status: TaskStatus }>
+        ) => {
+            const task = state.items.find((t) => t.id === action.payload.id);
+
+            if (task) {
+                task.status = action.payload.status;
+            }
+        },
     },
 });
 
-export const { addTask, deleteTask, updateTask } = tasksSlice.actions;
+export const { addTask, deleteTask, updateTask, setTaskStatus } = tasksSlice.actions;
 export default tasksSlice.reducer;
