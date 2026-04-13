@@ -45,7 +45,7 @@ export default function TaskItem({ task }: Props) {
     };
 
     return (
-        <li>
+        <li style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             {!isEditing ? (
                 <>
                     <h3>{task.title}</h3>
