@@ -2,13 +2,14 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { Task } from "../types/task";
 import type { TaskStatus } from "../types/task";
+import { loadTasks } from "../shared/lib/localStorage";
 
 interface TasksState {
     items: Task[];
 }
 
 const initialState: TasksState = {
-    items: [],
+    items: loadTasks(),
 };
 
 const tasksSlice = createSlice({
