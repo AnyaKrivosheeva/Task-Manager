@@ -4,6 +4,8 @@ import { priorityLabels } from "../../shared/lib/priorityLabels";
 import { statusLabels } from "../../shared/lib/statusLabels";
 import { updateTask, deleteTask, setTaskStatus } from "../../store/tasksSlice";
 import { useState } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
     task: Task;
@@ -17,6 +19,23 @@ const nextStatus: Record<Task["status"], Task["status"]> = {
 
 export default function TaskItem({ task }: Props) {
     const dispatch = useDispatch();
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id: task.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        display: "flex",
+        gap: "10px",
+        alignItems: "center",
+        cursor: "default"
+    };
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -45,9 +64,13 @@ export default function TaskItem({ task }: Props) {
     };
 
     return (
-        <li style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <li ref={setNodeRef} style={style} {...attributes}>
             {!isEditing ? (
                 <>
+                    <span {...listeners} style={{ cursor: "grab", marginRight: "8px" }}>
+                        ☰
+                    </span>
+
                     <h3>{task.title}</h3>
 
                     <p>Приоритет: {priorityLabels[task.priority]}</p>

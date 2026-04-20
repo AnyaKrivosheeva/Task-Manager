@@ -22,6 +22,7 @@ export default function AddTaskForm() {
             priority,
             createdAt: new Date().toISOString(),
             deadline: deadline || undefined,
+            order: Date.now(),
         };
 
         dispatch(addTask(newTask));
