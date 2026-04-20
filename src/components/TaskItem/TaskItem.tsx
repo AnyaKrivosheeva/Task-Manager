@@ -6,6 +6,7 @@ import { updateTask, deleteTask, setTaskStatus } from "../../store/tasksSlice";
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
 
 type Props = {
     task: Task;
@@ -38,6 +39,7 @@ export default function TaskItem({ task }: Props) {
     };
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
     const [title, setTitle] = useState(task.title);
     const [priority, setPriority] = useState<TaskPriority>(task.priority);
@@ -64,76 +66,88 @@ export default function TaskItem({ task }: Props) {
     };
 
     return (
-        <li ref={setNodeRef} style={style} {...attributes}>
-            {!isEditing ? (
-                <>
-                    <span {...listeners} style={{ cursor: "grab", marginRight: "8px" }}>
-                        ☰
-                    </span>
+        <>
+            <li ref={setNodeRef} style={style} {...attributes}>
+                {!isEditing ? (
+                    <>
+                        <span {...listeners} style={{ cursor: "grab", marginRight: "8px" }}>
+                            ☰
+                        </span>
 
-                    <h3>{task.title}</h3>
+                        <h3>{task.title}</h3>
 
-                    <p>Приоритет: {priorityLabels[task.priority]}</p>
+                        <p>Приоритет: {priorityLabels[task.priority]}</p>
 
-                    <p>Статус: {statusLabels[task.status]}</p>
+                        <p>Статус: {statusLabels[task.status]}</p>
 
-                    {task.deadline && (
-                        <p>
-                            Дедлайн:{" "}
-                            {new Date(task.deadline).toLocaleString("ru-RU", {
-                                dateStyle: "short",
-                                timeStyle: "short",
-                            })}
-                        </p>
-                    )}
+                        {task.deadline && (
+                            <p>
+                                Дедлайн:{" "}
+                                {new Date(task.deadline).toLocaleString("ru-RU", {
+                                    dateStyle: "short",
+                                    timeStyle: "short",
+                                })}
+                            </p>
+                        )}
 
-                    <button
-                        onClick={() =>
-                            dispatch(
-                                setTaskStatus({
-                                    id: task.id,
-                                    status: nextStatus[task.status],
-                                })
-                            )
-                        }
-                    >
-                        Изменить статус
-                    </button>
+                        <button
+                            onClick={() =>
+                                dispatch(
+                                    setTaskStatus({
+                                        id: task.id,
+                                        status: nextStatus[task.status],
+                                    })
+                                )
+                            }
+                        >
+                            Изменить статус
+                        </button>
 
-                    <button onClick={handleStartEdit}>Редактировать</button>
+                        <button onClick={handleStartEdit}>Редактировать</button>
 
-                    <button onClick={() => dispatch(deleteTask(task.id))}>
-                        Удалить
-                    </button>
-                </>
-            ) : (
-                <>
-                    <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
+                        <button onClick={() => setIsDeleteOpen(true)}>
+                            Удалить
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
 
-                    <select
-                        value={priority}
-                        onChange={(e) =>
-                            setPriority(e.target.value as TaskPriority)
-                        }
-                    >
-                        <option value="low">Можно неспешно</option>
-                        <option value="medium">В ближайшее время</option>
-                        <option value="high">Попа уже горит</option>
-                    </select>
+                        <select
+                            value={priority}
+                            onChange={(e) =>
+                                setPriority(e.target.value as TaskPriority)
+                            }
+                        >
+                            <option value="low">Можно неспешно</option>
+                            <option value="medium">В ближайшее время</option>
+                            <option value="high">Попа уже горит</option>
+                        </select>
 
-                    <input
-                        type="datetime-local"
-                        value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
-                    />
+                        <input
+                            type="datetime-local"
+                            value={deadline}
+                            onChange={(e) => setDeadline(e.target.value)}
+                        />
 
-                    <button onClick={handleSave}>Сохранить</button>
-                    <button onClick={() => setIsEditing(false)}>Отмена</button>
-                </>
-            )}
-        </li>
+                        <button onClick={handleSave}>Сохранить</button>
+                        <button onClick={() => setIsEditing(false)}>Отмена</button>
+                    </>
+                )}
+            </li>
+
+            <ConfirmModal
+                isOpen={isDeleteOpen}
+                description="Ты точно хочешь удалить эту задачу?"
+                onConfirm={() => {
+                    dispatch(deleteTask(task.id));
+                    setIsDeleteOpen(false);
+                }}
+                onCancel={() => setIsDeleteOpen(false)}
+            />
+        </>
     );
 }
