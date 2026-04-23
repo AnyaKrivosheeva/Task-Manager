@@ -18,7 +18,7 @@ function App() {
             color: isActive ? "#fff" : "#000",
           })}
         >
-          Список задач
+          Список делишек
         </NavLink>
         <NavLink
           to="/stats"

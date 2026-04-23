@@ -9,121 +9,123 @@ import {
     Bar,
     XAxis,
     YAxis,
+    ResponsiveContainer,
 } from "recharts";
-import { ResponsiveContainer } from "recharts";
 import { useMemo, useState } from "react";
 import type { StatsPeriod } from "../../types/stats";
 
+type DayKey = string;
+
+const formatDate = (date: Date): DayKey => {
+    const d = new Date(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate()
+    ).padStart(2, "0")}`;
+};
+
+const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const endOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+
 export default function TaskStats() {
     const tasks = useSelector((state: RootState) => state.tasks.items);
-
     const [period, setPeriod] = useState<StatsPeriod>("week");
+
+    const now = new Date();
 
     const { fromDate, toDate } = useMemo(() => {
         if (tasks.length === 0) return { fromDate: null, toDate: null };
 
         const dates = tasks.map(t => new Date(t.createdAt).getTime());
-
         const min = new Date(Math.min(...dates));
-        const max = new Date(Math.max(...dates));
 
-        if (period === "week") {
-            const now = new Date();
-            return {
-                fromDate: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7),
-                toDate: now,
-            };
+        const baseEnd = endOfDay(now);
+
+        switch (period) {
+            case "week":
+                return {
+                    fromDate: startOfDay(new Date(now.getTime() - 7 * 86400000)),
+                    toDate: baseEnd,
+                };
+
+            case "month":
+                return {
+                    fromDate: startOfDay(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())),
+                    toDate: baseEnd,
+                };
+
+            case "all":
+            default:
+                return {
+                    fromDate: startOfDay(min),
+                    toDate: baseEnd,
+                };
+        }
+    }, [tasks, period]);
+
+    const grouped = useMemo(() => {
+        const map: Record<
+            DayKey,
+            { created: number; completed: number }
+        > = {};
+
+        for (const task of tasks) {
+            const key = formatDate(new Date(task.createdAt));
+
+            if (!map[key]) {
+                map[key] = { created: 0, completed: 0 };
+            }
+
+            map[key].created += 1;
+
+            if (task.status === "done") {
+                map[key].completed += 1;
+            }
         }
 
-        if (period === "month") {
-            const now = new Date();
-            return {
-                fromDate: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
-                toDate: now,
-            };
-        }
+        return map;
+    }, [tasks]);
 
-        return {
-            fromDate: min,
-            toDate: max,
-        };
-    }, [period, tasks]);
+    const datesRange = useMemo(() => {
+        if (!fromDate || !toDate) return [];
 
-    const filteredByTime = useMemo(() => {
-        if (!fromDate || !toDate) return tasks;
+        const result: string[] = [];
+        const current = startOfDay(fromDate);
+        const end = startOfDay(toDate);
 
-        return tasks.filter(task => {
-            const date = new Date(task.createdAt);
-            return date >= fromDate && date <= toDate;
-        });
-    }, [tasks, fromDate, toDate]);
-
-    const statusData = useMemo(() => [
-        {
-            name: "Надо сделать",
-            value: filteredByTime.filter(t => t.status === "todo").length,
-            fill: "#8884d8",
-        },
-        {
-            name: "В процессе",
-            value: filteredByTime.filter(t => t.status === "in-progress").length,
-            fill: "#ffc658",
-        },
-        {
-            name: "Сделано",
-            value: filteredByTime.filter(t => t.status === "done").length,
-            fill: "#82ca9d",
-        },
-    ], [filteredByTime]);
-
-    const getDatesRange = (from: Date, to: Date) => {
-        const dates: string[] = [];
-        const current = new Date(from);
-
-        while (current <= to) {
-            dates.push(current.toLocaleDateString("ru-RU"));
+        while (current <= end) {
+            result.push(formatDate(current));
             current.setDate(current.getDate() + 1);
         }
 
-        return dates;
-    };
+        return result;
+    }, [fromDate, toDate]);
 
     const chartData = useMemo(() => {
-        const grouped: Record<string, { created: number; completed: number }> = {};
+        return datesRange.map(date => ({
+            date,
+            created: grouped[date]?.created ?? 0,
+            completed: grouped[date]?.completed ?? 0,
+        }));
+    }, [datesRange, grouped]);
 
-        filteredByTime.forEach(task => {
-            const date = new Date(task.createdAt).toLocaleDateString("ru-RU");
+    const statusData = useMemo(() => {
+        const result = {
+            todo: 0,
+            "in-progress": 0,
+            done: 0,
+        };
 
-            if (!grouped[date]) {
-                grouped[date] = { created: 0, completed: 0 };
-            }
-
-            grouped[date].created += 1;
-
-            if (task.status === "done") {
-                grouped[date].completed += 1;
-            }
-        });
-
-        if (!fromDate) {
-            return Object.entries(grouped).map(([date, value]) => ({
-                date,
-                ...value,
-            }));
+        for (const t of tasks) {
+            result[t.status] += 1;
         }
 
-        const toDate = new Date();
-
-        const allDates = fromDate && toDate
-            ? getDatesRange(fromDate, toDate)
-            : [];
-
-        return allDates.map(date => ({
-            date,
-            created: grouped[date]?.created || 0,
-            completed: grouped[date]?.completed || 0,
-        }));
-    }, [filteredByTime, fromDate]);
+        return [
+            { name: "Надо сделать", value: result.todo, fill: "#8884d8" },
+            { name: "В процессе", value: result["in-progress"], fill: "#ffc658" },
+            { name: "Сделано", value: result.done, fill: "#82ca9d" },
+        ];
+    }, [tasks]);
 
     const getButtonStyle = (value: StatsPeriod) => ({
         padding: "6px 12px",
@@ -140,53 +142,34 @@ export default function TaskStats() {
             <h2>Статистика делишек</h2>
 
             <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                <button onClick={() => setPeriod("week")} style={getButtonStyle("week")}>Неделя</button>
-                <button onClick={() => setPeriod("month")} style={getButtonStyle("month")}>Месяц</button>
-                <button onClick={() => setPeriod("all")} style={getButtonStyle("all")}>Все время</button>
+                <button onClick={() => setPeriod("week")} style={getButtonStyle("week")}>
+                    Неделя
+                </button>
+                <button onClick={() => setPeriod("month")} style={getButtonStyle("month")}>
+                    Месяц
+                </button>
+                <button onClick={() => setPeriod("all")} style={getButtonStyle("all")}>
+                    Все время
+                </button>
             </div>
 
             <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
-                <PieChart width={400} height={300}>
-                    <Pie
-                        data={statusData}
-                        dataKey="value"
-                        nameKey="name"
-                        outerRadius={120}
-                        label
-                    />
+                <PieChart width={400} height={350}>
+                    <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={120} label />
                     <Tooltip />
                     <Legend />
                 </PieChart>
 
                 <div style={{ width: "100%", maxWidth: "700px", margin: "30px auto", height: 300 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData} barGap={2} barCategoryGap="20%">
-                            <XAxis
-                                dataKey="date"
-                                interval={period === "month" ? 5 : 0}
-                                angle={-30}
-                                textAnchor="end"
-                                height={60}
-                            />
+                        <BarChart data={chartData}>
+                            <XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
                             <YAxis />
                             <Tooltip />
                             <Legend />
 
-                            <Bar
-                                dataKey="created"
-                                fill="#7955cd"
-                                name="Создано"
-                                maxBarSize={30}
-                                radius={[4, 4, 0, 0]}
-                            />
-
-                            <Bar
-                                dataKey="completed"
-                                fill="#3ece75"
-                                name="Выполнено"
-                                maxBarSize={30}
-                                radius={[4, 4, 0, 0]}
-                            />
+                            <Bar dataKey="created" fill="#7955cd" name="Создано" />
+                            <Bar dataKey="completed" fill="#3ece75" name="Выполнено" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
