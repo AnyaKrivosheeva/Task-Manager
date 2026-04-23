@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
 import {
     PieChart,
     Pie,
@@ -12,7 +10,8 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { useMemo, useState } from "react";
-import type { StatsPeriod } from "../../types/stats";
+import type { StatsPeriod } from "../types/stats";
+import { useTasksContext } from "../shared/providers/TasksProvider";
 
 type DayKey = string;
 
@@ -28,7 +27,8 @@ const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(),
 const endOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
 
 export default function TaskStats() {
-    const tasks = useSelector((state: RootState) => state.tasks.items);
+    const { tasks } = useTasksContext();
+
     const [period, setPeriod] = useState<StatsPeriod>("week");
 
     const now = new Date();
@@ -36,7 +36,7 @@ export default function TaskStats() {
     const { fromDate, toDate } = useMemo(() => {
         if (tasks.length === 0) return { fromDate: null, toDate: null };
 
-        const dates = tasks.map(t => new Date(t.createdAt).getTime());
+        const dates = tasks.map(t => new Date(t.created_at).getTime());
         const min = new Date(Math.min(...dates));
 
         const baseEnd = endOfDay(now);
@@ -70,7 +70,7 @@ export default function TaskStats() {
         > = {};
 
         for (const task of tasks) {
-            const key = formatDate(new Date(task.createdAt));
+            const key = formatDate(new Date(task.created_at));
 
             if (!map[key]) {
                 map[key] = { created: 0, completed: 0 };
