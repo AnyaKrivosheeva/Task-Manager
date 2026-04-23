@@ -1,31 +1,48 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addTask } from "../../store/tasksSlice";
 import type { TaskPriority } from "../../types/task";
+import { supabase } from "../../shared/api/supabase";
+import { useTasksContext } from "../../shared/providers/TasksProvider";
 
 export default function AddTaskForm() {
-    const dispatch = useDispatch();
-
     const [title, setTitle] = useState<string>("");
     const [priority, setPriority] = useState<TaskPriority>("medium");
     const [deadline, setDeadline] = useState<string>("");
 
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const { setTasks } = useTasksContext();
+
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
         if (!title.trim()) return;
 
+        const { data: userData } = await supabase.auth.getUser();
+        const user = userData.user;
+
+        if (!user) return;
+
         const newTask = {
             id: crypto.randomUUID(),
+            user_id: user.id,
             title,
             status: "todo" as const,
             priority,
-            createdAt: new Date().toISOString(),
-            deadline: deadline || undefined,
+            created_at: new Date().toISOString(),
+            deadline: deadline || null,
             order: Date.now(),
         };
 
-        dispatch(addTask(newTask));
+        setTasks(prev => [...prev, newTask]);
+
+        const { error } = await supabase
+            .from("tasks")
+            .insert([newTask]);
+
+        if (error) {
+            console.error(error);
+
+            setTasks(prev => prev.filter(t => t.id !== newTask.id));
+            return;
+        }
 
         setTitle("");
         setPriority("medium");

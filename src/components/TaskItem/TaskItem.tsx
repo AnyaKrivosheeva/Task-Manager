@@ -1,12 +1,12 @@
 import type { Task, TaskPriority } from "../../types/task";
-import { useDispatch } from "react-redux";
 import { priorityLabels } from "../../shared/lib/priorityLabels";
 import { statusLabels } from "../../shared/lib/statusLabels";
-import { updateTask, deleteTask, setTaskStatus } from "../../store/tasksSlice";
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { supabase } from "../../shared/api/supabase";
+import { useTasksContext } from "../../shared/providers/TasksProvider";
 
 type Props = {
     task: Task;
@@ -19,8 +19,6 @@ const nextStatus: Record<Task["status"], Task["status"]> = {
 };
 
 export default function TaskItem({ task }: Props) {
-    const dispatch = useDispatch();
-
     const {
         attributes,
         listeners,
@@ -38,6 +36,8 @@ export default function TaskItem({ task }: Props) {
         cursor: "default"
     };
 
+    const { setTasks } = useTasksContext();
+
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
@@ -45,17 +45,74 @@ export default function TaskItem({ task }: Props) {
     const [priority, setPriority] = useState<TaskPriority>(task.priority);
     const [deadline, setDeadline] = useState(task.deadline || "");
 
-    const handleSave = () => {
-        dispatch(
-            updateTask({
-                ...task,
-                title,
-                priority,
-                deadline: deadline || undefined,
-            })
+    const handleSave = async () => {
+        const updates = {
+            title,
+            priority,
+            deadline: deadline || null,
+        };
+
+        const { error } = await supabase
+            .from("tasks")
+            .update(updates)
+            .eq("id", task.id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        setTasks(prev =>
+            prev.map(t =>
+                t.id === task.id
+                    ? { ...t, ...updates }
+                    : t
+            )
         );
 
         setIsEditing(false);
+    };
+
+    const handleDelete = async () => {
+        const { error } = await supabase
+            .from("tasks")
+            .delete()
+            .eq("id", task.id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        setTasks(prev =>
+            prev.filter(t => t.id !== task.id)
+        );
+
+        setIsDeleteOpen(false);
+    };
+
+    const handleStatusChange = async () => {
+        const newStatus = nextStatus[task.status];
+
+        const { error } = await supabase
+            .from("tasks")
+            .update({
+                status: nextStatus[task.status],
+            })
+            .eq("id", task.id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        setTasks(prev =>
+            prev.map(t =>
+                t.id === task.id
+                    ? { ...t, status: newStatus }
+                    : t
+            )
+        );
     };
 
     const handleStartEdit = () => {
@@ -90,18 +147,7 @@ export default function TaskItem({ task }: Props) {
                             </p>
                         )}
 
-                        <button
-                            onClick={() =>
-                                dispatch(
-                                    setTaskStatus({
-                                        id: task.id,
-                                        status: nextStatus[task.status],
-                                    })
-                                )
-                            }
-                        >
-                            Изменить статус
-                        </button>
+                        <button onClick={handleStatusChange}>Изменить статус</button>
 
                         <button onClick={handleStartEdit}>Редактировать</button>
 
@@ -142,10 +188,7 @@ export default function TaskItem({ task }: Props) {
             <ConfirmModal
                 isOpen={isDeleteOpen}
                 description="Ты точно хочешь удалить эту задачу?"
-                onConfirm={() => {
-                    dispatch(deleteTask(task.id));
-                    setIsDeleteOpen(false);
-                }}
+                onConfirm={handleDelete}
                 onCancel={() => setIsDeleteOpen(false)}
             />
         </>

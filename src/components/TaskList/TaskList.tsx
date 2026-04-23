@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
 import TaskItem from "../TaskItem/TaskItem";
 import { useState } from "react";
 import type { FilterType } from "../../types/filter";
@@ -15,17 +13,16 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import type { DragEndEvent } from "@dnd-kit/core";
 
-import { useDispatch } from "react-redux";
-import { reorderTasks } from "../../store/tasksSlice";
+import { supabase } from "../../shared/api/supabase";
+import { useTasksContext } from "../../shared/providers/TasksProvider";
 
 export default function TaskList() {
-    const dispatch = useDispatch();
+    const { tasks, setTasks } = useTasksContext();
 
     const [filter, setFilter] = useState<FilterType>("all");
     const [search, setSearch] = useState<string>("");
-
-    const tasks = useSelector((state: RootState) => state.tasks.items);
 
     const filteredTasks = tasks.filter((task) => {
         const matchStatus =
@@ -42,7 +39,7 @@ export default function TaskList() {
         (a, b) => a.order - b.order
     );
 
-    const handleDragEnd = (event: any) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (!over || active.id === over.id) return;
@@ -57,7 +54,26 @@ export default function TaskList() {
             })
         );
 
-        dispatch(reorderTasks(newOrder));
+        setTasks(newOrder);
+
+        const { data: userData } = await supabase.auth.getUser();
+        const user = userData.user;
+
+        if (!user) return;
+
+        const updates = newOrder.map(task => ({
+            id: task.id,
+            order: task.order,
+            user_id: user.id,
+        }));
+
+        const { error } = await supabase
+            .from("tasks")
+            .upsert(updates);
+
+        if (error) {
+            console.error("Ошибка при сохранении порядка:", error);
+        }
     };
 
     return (
