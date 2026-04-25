@@ -5,7 +5,7 @@ export default function AuthLayout() {
         <div
             style={{
                 padding: "40px",
-                maxWidth: "400px",
+                maxWidth: "500px",
                 margin: "0 auto",
             }}
         >

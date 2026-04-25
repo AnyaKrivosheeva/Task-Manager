@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import { supabase } from "../../shared/api/supabase";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
+import { fromISOToInput, fromInputToISO } from "../../shared/lib/date";
 
 type Props = {
     task: Task;
@@ -43,13 +44,19 @@ export default function TaskItem({ task }: Props) {
 
     const [title, setTitle] = useState(task.title);
     const [priority, setPriority] = useState<TaskPriority>(task.priority);
-    const [deadline, setDeadline] = useState(task.deadline || "");
+    const [deadline, setDeadline] = useState(task.deadline ? fromISOToInput(task.deadline) : "");
 
     const handleSave = async () => {
+        const newDeadlineISO = fromInputToISO(deadline);
+
         const updates = {
             title,
             priority,
-            deadline: deadline || null,
+            deadline: newDeadlineISO,
+            deadline_notified:
+                newDeadlineISO !== task.deadline
+                    ? false
+                    : task.deadline_notified,
         };
 
         const { error } = await supabase
@@ -118,7 +125,7 @@ export default function TaskItem({ task }: Props) {
     const handleStartEdit = () => {
         setTitle(task.title);
         setPriority(task.priority);
-        setDeadline(task.deadline || "");
+        setDeadline(task.deadline ? fromISOToInput(task.deadline) : "");
         setIsEditing(true);
     };
 
@@ -141,8 +148,10 @@ export default function TaskItem({ task }: Props) {
                             <p>
                                 Дедлайн:{" "}
                                 {new Date(task.deadline).toLocaleString("ru-RU", {
-                                    dateStyle: "short",
-                                    timeStyle: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    day: "2-digit",
+                                    month: "2-digit",
                                 })}
                             </p>
                         )}

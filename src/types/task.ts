@@ -12,4 +12,5 @@ export interface Task {
     created_at: string;
     deadline: string | null;
     order: number;
+    deadline_notified: boolean;
 }

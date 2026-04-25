@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../shared/api/supabase";
 import { useNavigate } from "react-router-dom";
+import { subscribeToPush } from "../shared/lib/push";
 
 export default function Auth() {
     const [email, setEmail] = useState("");
@@ -15,6 +16,11 @@ export default function Auth() {
         e.preventDefault();
         setError(null);
 
+        if (!email.trim() || !password.trim()) {
+            setError("Заполни email и пароль");
+            return;
+        }
+
         if (password.length < 6) {
             setError("Пароль должен быть минимум 6 символов");
             return;
@@ -23,8 +29,10 @@ export default function Auth() {
         setLoading(true);
 
         try {
+            let userId: string | null = null;
+
             if (mode === "register") {
-                const { error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
                 });
@@ -33,8 +41,10 @@ export default function Auth() {
                     setError(error.message);
                     return;
                 }
+
+                userId = data.user?.id ?? null;
             } else {
-                const { error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await supabase.auth.signInWithPassword({
                     email,
                     password,
                 });
@@ -43,6 +53,25 @@ export default function Auth() {
                     setError(error.message);
                     return;
                 }
+
+                userId = data.user?.id ?? null;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+
+                if (permission === "granted") {
+                    const subscription = await subscribeToPush();
+
+                    console.log("PUSH SUBSCRIPTION:", subscription);
+
+                    await supabase.from("push_subscriptions").insert({
+                        user_id: userId,
+                        subscription: subscription
+                    });
+                }
+            } catch (pushError) {
+                console.error("Push init failed:", pushError);
             }
 
             navigate("/");
@@ -80,7 +109,7 @@ export default function Auth() {
 
             {error && (
                 <p style={{ fontSize: "12px", color: "#d30202" }}>
-                    Пароль минимум 6 символов!
+                    {error}
                 </p>
             )}
 
