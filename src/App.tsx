@@ -1,132 +1,60 @@
 import AddTaskForm from "./components/AddTaskForm/AddTaskForm"
 import TaskList from "./components/TaskList/TaskList"
 import TaskStats from "./pages/TaskStats"
-import { Routes, Route, Navigate, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Auth from "./pages/Auth";
 import { TasksProvider } from "./shared/providers/TasksProvider";
-import { supabase } from "./shared/api/supabase";
-import { useEffect, useState } from "react";
-import ConfirmModal from "./components/ConfirmModal/ConfirmModal";
-import type { User } from "@supabase/supabase-js";
+import { AuthProvider } from "./shared/providers/AuthProvider";
+
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const isAuthPage = location.pathname === "/auth";
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setIsLogoutOpen(false);
-    navigate("/auth");
-  };
-
   return (
-    <TasksProvider>
-      <div style={{ padding: "20px" }}>
-
-        {!isAuthPage && user && (
-          <nav style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-            <NavLink
-              to="/"
-              style={({ isActive }) => ({
-                padding: "6px 12px",
-                borderRadius: "6px",
-                textDecoration: "none",
-                backgroundColor: isActive ? "#7955cd" : "#eee",
-                color: isActive ? "#fff" : "#000",
-              })}
-            >
-              Список делишек
-            </NavLink>
-
-            <NavLink
-              to="/stats"
-              style={({ isActive }) => ({
-                padding: "6px 12px",
-                borderRadius: "6px",
-                textDecoration: "none",
-                backgroundColor: isActive ? "#7955cd" : "#eee",
-                color: isActive ? "#fff" : "#000",
-              })}
-            >
-              Статистика
-            </NavLink>
-
-            <button
-              onClick={() => setIsLogoutOpen(true)}
-              style={{
-                marginLeft: "auto",
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "none",
-                backgroundColor: "#eee",
-                cursor: "pointer",
-              }}
-            >
-              Выйти
-            </button>
-          </nav>
-        )}
-
+    <AuthProvider>
+      <TasksProvider>
         <Routes>
-          <Route
-            path="/auth"
-            element={!user ? <Auth /> : <Navigate to="/" />}
-          />
 
+          {/* AUTH */}
+          <Route element={<AuthLayout />}>
+            <Route
+              path="/auth"
+              element={
+                <PublicRoute>
+                  <Auth />
+                </PublicRoute>
+              }
+            />
+          </Route>
+
+          {/* PROTECTED */}
           <Route
-            path="/"
             element={
-              user ? (
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              path="/"
+              element={
                 <>
                   <AddTaskForm />
                   <TaskList />
                 </>
-              ) : (
-                <Navigate to="/auth" />
-              )
-            }
-          />
+              }
+            />
 
-          <Route
-            path="/stats"
-            element={user ? <TaskStats /> : <Navigate to="/auth" />}
-          />
+            <Route path="/stats" element={<TaskStats />} />
+          </Route>
 
-          <Route
-            path="*"
-            element={<Navigate to={user ? "/" : "/auth"} />}
-          />
         </Routes>
+      </TasksProvider>
+    </AuthProvider>
 
-        <ConfirmModal
-          isOpen={isLogoutOpen}
-          description="Вы точно хотите выйти?"
-          onConfirm={handleLogout}
-          onCancel={() => setIsLogoutOpen(false)}
-        />
-      </div>
-    </TasksProvider>
   )
 }
 
