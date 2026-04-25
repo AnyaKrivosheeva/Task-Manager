@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { TaskPriority } from "../../types/task";
 import { supabase } from "../../shared/api/supabase";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
+import { fromInputToISO } from "../../shared/lib/date";
 
 export default function AddTaskForm() {
     const [title, setTitle] = useState<string>("");
@@ -27,8 +28,9 @@ export default function AddTaskForm() {
             status: "todo" as const,
             priority,
             created_at: new Date().toISOString(),
-            deadline: deadline || null,
+            deadline: fromInputToISO(deadline),
             order: Date.now(),
+            deadline_notified: false,
         };
 
         setTasks(prev => [...prev, newTask]);
@@ -42,6 +44,25 @@ export default function AddTaskForm() {
 
             setTasks(prev => prev.filter(t => t.id !== newTask.id));
             return;
+        }
+
+        try {
+            await fetch("https://aqrneetsadfpyvsmfvyh.supabase.co/functions/v1/send-push", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_id: user.id,
+                    type: "task_created",
+                    title: "Новая задача",
+                    body: title,
+                    task_id: newTask.id,
+                    deadline: deadline || null,
+                }),
+            });
+        } catch (err) {
+            console.error("Push error:", err);
         }
 
         setTitle("");
