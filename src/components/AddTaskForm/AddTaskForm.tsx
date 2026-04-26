@@ -30,7 +30,8 @@ export default function AddTaskForm() {
             created_at: new Date().toISOString(),
             deadline: fromInputToISO(deadline),
             order: Date.now(),
-            deadline_notified: false,
+            deadline_notified_1h: false,
+            deadline_notified_24h: false,
         };
 
         setTasks(prev => [...prev, newTask]);

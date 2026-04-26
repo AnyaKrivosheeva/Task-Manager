@@ -49,14 +49,14 @@ export default function TaskItem({ task }: Props) {
     const handleSave = async () => {
         const newDeadlineISO = fromInputToISO(deadline);
 
+        const isChanged = newDeadlineISO !== task.deadline;
+
         const updates = {
             title,
             priority,
             deadline: newDeadlineISO,
-            deadline_notified:
-                newDeadlineISO !== task.deadline
-                    ? false
-                    : task.deadline_notified,
+            deadline_notified_1h: isChanged ? false : task.deadline_notified_1h,
+            deadline_notified_24h: isChanged ? false : task.deadline_notified_24h,
         };
 
         const { error } = await supabase
