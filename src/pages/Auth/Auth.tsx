@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { supabase } from "../shared/api/supabase";
+import { supabase } from "../../shared/api/supabase";
 import { useNavigate } from "react-router-dom";
-import { subscribeToPush } from "../shared/lib/push";
+import { subscribeToPush } from "../../shared/lib/push";
 
 export default function Auth() {
     const [email, setEmail] = useState("");
