@@ -1,1 +1,1 @@
-export type StatsPeriod = "week" | "month" | "all";
+export type StatsPeriod = "day" | "week" | "month" | "all";

@@ -42,6 +42,12 @@ export default function TaskStats() {
         const baseEnd = endOfDay(now);
 
         switch (period) {
+            case "day":
+                return {
+                    fromDate: startOfDay(new Date(now)),
+                    toDate: baseEnd,
+                };
+
             case "week":
                 return {
                     fromDate: startOfDay(new Date(now.getTime() - 7 * 86400000)),
@@ -63,13 +69,25 @@ export default function TaskStats() {
         }
     }, [tasks, period]);
 
+    const filteredTasks = useMemo(() => {
+        if (!fromDate || !toDate) return tasks;
+
+        const from = fromDate.getTime();
+        const to = toDate.getTime();
+
+        return tasks.filter(t => {
+            const time = new Date(t.created_at).getTime();
+            return time >= from && time <= to;
+        });
+    }, [tasks, fromDate, toDate]);
+
     const grouped = useMemo(() => {
         const map: Record<
             DayKey,
             { created: number; completed: number }
         > = {};
 
-        for (const task of tasks) {
+        for (const task of filteredTasks) {
             const key = formatDate(new Date(task.created_at));
 
             if (!map[key]) {
@@ -84,7 +102,7 @@ export default function TaskStats() {
         }
 
         return map;
-    }, [tasks]);
+    }, [filteredTasks]);
 
     const datesRange = useMemo(() => {
         if (!fromDate || !toDate) return [];
@@ -116,7 +134,7 @@ export default function TaskStats() {
             done: 0,
         };
 
-        for (const t of tasks) {
+        for (const t of filteredTasks) {
             result[t.status] += 1;
         }
 
@@ -125,7 +143,7 @@ export default function TaskStats() {
             { name: "В процессе", value: result["in-progress"], fill: "#ffc658" },
             { name: "Сделано", value: result.done, fill: "#82ca9d" },
         ];
-    }, [tasks]);
+    }, [filteredTasks]);
 
     const getButtonStyle = (value: StatsPeriod) => ({
         padding: "6px 12px",
@@ -142,6 +160,9 @@ export default function TaskStats() {
             <h2>Статистика делишек</h2>
 
             <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <button onClick={() => setPeriod("day")} style={getButtonStyle("day")}>
+                    Сегодня
+                </button>
                 <button onClick={() => setPeriod("week")} style={getButtonStyle("week")}>
                     Неделя
                 </button>
