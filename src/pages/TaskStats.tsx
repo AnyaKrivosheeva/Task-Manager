@@ -81,6 +81,8 @@ export default function TaskStats() {
         });
     }, [tasks, fromDate, toDate]);
 
+    const isEmpty = filteredTasks.length === 0;
+
     const grouped = useMemo(() => {
         const map: Record<
             DayKey,
@@ -174,27 +176,41 @@ export default function TaskStats() {
                 </button>
             </div>
 
-            <div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
-                <PieChart width={400} height={350}>
-                    <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={120} label />
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
-
-                <div style={{ width: "100%", maxWidth: "700px", margin: "30px auto", height: 300 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                            <XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
-                            <YAxis />
+            {isEmpty
+                ? (
+                    <div
+                        style={{
+                            marginTop: "60px",
+                            textAlign: "center",
+                            color: "#888",
+                            fontSize: "18px",
+                        }}
+                    >
+                        За выбранный период задач нет 📭
+                    </div>)
+                : (
+                    < div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
+                        <PieChart width={400} height={350}>
+                            <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={120} label />
                             <Tooltip />
                             <Legend />
+                        </PieChart>
 
-                            <Bar dataKey="created" fill="#7955cd" name="Создано" />
-                            <Bar dataKey="completed" fill="#3ece75" name="Выполнено" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-        </div>
+                        <div style={{ width: "100%", maxWidth: "700px", margin: "30px auto", height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData}>
+                                    <XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+
+                                    <Bar dataKey="created" fill="#7955cd" name="Создано" />
+                                    <Bar dataKey="completed" fill="#3ece75" name="Выполнено" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
+        </div >
     );
 }
