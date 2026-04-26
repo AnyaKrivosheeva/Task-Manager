@@ -10,17 +10,10 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { useMemo, useState } from "react";
-import type { StatsPeriod } from "../types/stats";
-import { useTasksContext } from "../shared/providers/TasksProvider";
-
-type DayKey = string;
-
-const formatDate = (date: Date): DayKey => {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-        d.getDate()
-    ).padStart(2, "0")}`;
-};
+import type { StatsPeriod } from "../../types/stats";
+import { useTasksContext } from "../../shared/providers/TasksProvider";
+import { formatDate, getStatusData } from "./taskStats.utils";
+import type { DayKey } from "./taskStats.utils";
 
 const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
@@ -130,15 +123,7 @@ export default function TaskStats() {
     }, [datesRange, grouped]);
 
     const statusData = useMemo(() => {
-        const result = {
-            todo: 0,
-            "in-progress": 0,
-            done: 0,
-        };
-
-        for (const t of filteredTasks) {
-            result[t.status] += 1;
-        }
+        const result = getStatusData(filteredTasks);
 
         return [
             { name: "Надо сделать", value: result.todo, fill: "#8884d8" },
