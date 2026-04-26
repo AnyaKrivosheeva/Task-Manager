@@ -1,8 +1,8 @@
 import AddTaskForm from "./components/AddTaskForm/AddTaskForm"
 import TaskList from "./components/TaskList/TaskList"
-import TaskStats from "./pages/TaskStats"
+import TaskStats from "./pages/TaskStats/TaskStats"
 import { Routes, Route } from "react-router-dom";
-import Auth from "./pages/Auth";
+import Auth from "./pages/Auth/Auth";
 import { TasksProvider } from "./shared/providers/TasksProvider";
 import { AuthProvider } from "./shared/providers/AuthProvider";
 
