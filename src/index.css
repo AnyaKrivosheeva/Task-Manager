@@ -1,6 +1,44 @@
+:root {
+  --bg: #f7f7fb;
+  --card: #ffffff;
+
+  --primary: #7955cd;
+  --primary-hover: #6844b8;
+
+  --text: #1f1f1f;
+  --text-secondary: #6b6b6b;
+
+  --border: #e5e5ef;
+}
+
+* {
+  font-family: "Inter", sans-serif;
+  box-sizing: border-box;
+}
+
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin: 0 auto;
+  padding: 0;
+  color: #1f1f1f;
+  background-color: #f7f7fb;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Nunito", sans-serif;
+  margin: 0;
+  font-weight: 800;
+}
+
+p {
+  margin: 0;
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
 }

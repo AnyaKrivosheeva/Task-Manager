@@ -138,7 +138,7 @@ export default function TaskItem({ task }: Props) {
                             ☰
                         </span>
 
-                        <h3>{task.title}</h3>
+                        <p>{task.title}</p>
 
                         <p>Приоритет: {priorityLabels[task.priority]}</p>
 

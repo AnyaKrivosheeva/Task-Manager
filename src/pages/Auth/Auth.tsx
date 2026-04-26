@@ -75,7 +75,7 @@ export default function Auth() {
                     const subscription = await subscribeToPush();
 
                     if (!subscription?.endpoint) return;
-                    
+
                     console.log("PUSH SUBSCRIPTION:", subscription);
 
                     const { error: upsertError } = await supabase
@@ -107,6 +107,7 @@ export default function Auth() {
 
     return (
         <div>
+            <h1>Менеджер для твоих делишек</h1>
             <h2>{mode === "login" ? "Вход" : "Регистрация"}</h2>
 
             <form onSubmit={handleSubmit}>
