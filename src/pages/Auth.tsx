@@ -61,14 +61,39 @@ export default function Auth() {
                 const permission = await Notification.requestPermission();
 
                 if (permission === "granted") {
+                    const { data: existing } = await supabase
+                        .from("push_subscriptions")
+                        .select("endpoint")
+                        .eq("user_id", userId)
+                        .maybeSingle();
+
+                    if (existing) {
+                        console.log("Already subscribed");
+                        return;
+                    }
+
                     const subscription = await subscribeToPush();
 
+                    if (!subscription?.endpoint) return;
+                    
                     console.log("PUSH SUBSCRIPTION:", subscription);
 
-                    await supabase.from("push_subscriptions").insert({
-                        user_id: userId,
-                        subscription: subscription
-                    });
+                    const { error: upsertError } = await supabase
+                        .from("push_subscriptions")
+                        .upsert(
+                            {
+                                user_id: userId,
+                                endpoint: subscription.endpoint,
+                                subscription: subscription,
+                            },
+                            {
+                                onConflict: "endpoint",
+                            }
+                        );
+
+                    if (upsertError) {
+                        console.error("Push save error:", upsertError);
+                    }
                 }
             } catch (pushError) {
                 console.error("Push init failed:", pushError);
