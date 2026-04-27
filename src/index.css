@@ -1,9 +1,9 @@
 :root {
-  --bg: #f7f7fb;
+  --bg: #fff2ff59;
   --card: #ffffff;
 
-  --primary: #7955cd;
-  --primary-hover: #6844b8;
+  --primary: #dd39d5;
+  --primary-hover: #c036b9;
 
   --text: #1f1f1f;
   --text-secondary: #6b6b6b;
@@ -20,7 +20,7 @@ body {
   margin: 0 auto;
   padding: 0;
   color: #1f1f1f;
-  background-color: #f7f7fb;
+  background-color: #fff2ff59;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

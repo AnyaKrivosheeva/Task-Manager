@@ -1,0 +1,56 @@
+.btn {
+    padding: 6px 12px;
+
+    border-radius: 15px;
+    border: none;
+
+    background-color: var(--primary);
+    color: white;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.quit {
+    margin-left: auto;
+}
+
+.danger {
+    background-color: #ff6b6b;
+}
+
+.danger:hover {
+    background-color: #e85a5a;
+}
+
+.gray {
+    background-color: #eee;
+    color: #000;
+}
+
+.gray:hover {
+    background-color: #dcdcdc;
+}
+
+.auth {
+    padding: 10px 12px;
+    border-radius: 8px;
+}
