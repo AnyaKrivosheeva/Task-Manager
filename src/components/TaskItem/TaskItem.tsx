@@ -8,6 +8,9 @@ import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import { supabase } from "../../shared/api/supabase";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
 import { fromISOToInput, fromInputToISO } from "../../shared/lib/date";
+import styles from "./TaskItem.module.css";
+import Button from "../UI/Button/Button";
+import ButtonStyles from "../UI/Button/Button.module.css";
 
 type Props = {
     task: Task;
@@ -28,13 +31,9 @@ export default function TaskItem({ task }: Props) {
         transition,
     } = useSortable({ id: task.id });
 
-    const style = {
+    const dragStyle = {
         transform: CSS.Transform.toString(transform),
         transition,
-        display: "flex",
-        gap: "10px",
-        alignItems: "center",
-        cursor: "default"
     };
 
     const { setTasks } = useTasksContext();
@@ -101,11 +100,17 @@ export default function TaskItem({ task }: Props) {
     const handleStatusChange = async () => {
         const newStatus = nextStatus[task.status];
 
+        const updates = {
+            status: newStatus,
+            completed_at:
+                newStatus === "done"
+                    ? new Date().toISOString()
+                    : null,
+        };
+
         const { error } = await supabase
             .from("tasks")
-            .update({
-                status: nextStatus[task.status],
-            })
+            .update(updates)
             .eq("id", task.id);
 
         if (error) {
@@ -116,7 +121,7 @@ export default function TaskItem({ task }: Props) {
         setTasks(prev =>
             prev.map(t =>
                 t.id === task.id
-                    ? { ...t, status: newStatus }
+                    ? { ...t, ...updates }
                     : t
             )
         );
@@ -131,66 +136,87 @@ export default function TaskItem({ task }: Props) {
 
     return (
         <>
-            <li ref={setNodeRef} style={style} {...attributes}>
+            <li ref={setNodeRef} style={dragStyle} className={styles.item} {...attributes}>
                 {!isEditing ? (
                     <>
-                        <span {...listeners} style={{ cursor: "grab", marginRight: "8px" }}>
+                        <span {...listeners} className={styles.drag}>
                             ☰
                         </span>
 
-                        <p>{task.title}</p>
+                        <div className={styles.content}>
+                            <div className={styles.title}>{task.title}</div>
 
-                        <p>Приоритет: {priorityLabels[task.priority]}</p>
+                            <div className={styles.meta}>
+                                <span className={`${styles.badge} ${styles[task.status]}`}>
+                                    {statusLabels[task.status]}
+                                </span>
 
-                        <p>Статус: {statusLabels[task.status]}</p>
+                                {task.status !== "done" && (
+                                    <>
+                                        <span className={`${styles.badge} ${styles[task.priority]}`}>
+                                            {priorityLabels[task.priority]}
+                                        </span>
 
-                        {task.deadline && (
-                            <p>
-                                Дедлайн:{" "}
-                                {new Date(task.deadline).toLocaleString("ru-RU", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                })}
-                            </p>
-                        )}
+                                        {task.deadline && (
+                                            <span className={styles.deadline}>
+                                                ⏰ {new Date(task.deadline).toLocaleString("ru-RU", {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                })}
+                                            </span>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
 
-                        <button onClick={handleStatusChange}>Изменить статус</button>
+                        <div className={styles.actions}>
+                            <Button onClick={handleStatusChange} className={ButtonStyles.task_button}>Изменить статус</Button>
 
-                        <button onClick={handleStartEdit}>Редактировать</button>
+                            <Button onClick={handleStartEdit} className={ButtonStyles.task_button}>Редактировать</Button>
 
-                        <button onClick={() => setIsDeleteOpen(true)}>
-                            Удалить
-                        </button>
+                            <Button onClick={() => setIsDeleteOpen(true)} className={ButtonStyles.task_delete}>
+                                Удалить
+                            </Button>
+                        </div>
                     </>
                 ) : (
-                    <>
-                        <input
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
+                    <div className={styles.edit}>
+                        <div className={styles.actions}>
+                            <input
+                                className={styles.input}
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
 
-                        <select
-                            value={priority}
-                            onChange={(e) =>
-                                setPriority(e.target.value as TaskPriority)
-                            }
-                        >
-                            <option value="low">Можно неспешно</option>
-                            <option value="medium">В ближайшее время</option>
-                            <option value="high">Попа уже горит</option>
-                        </select>
+                            <select
+                                className={`${styles.input} ${styles.select}`}
+                                value={priority}
+                                onChange={(e) =>
+                                    setPriority(e.target.value as TaskPriority)
+                                }
+                            >
+                                <option value="low">Можно неспешно 🧘</option>
+                                <option value="medium">В ближайшее время ⏳</option>
+                                <option value="high">Попа уже горит 🔥</option>
+                            </select>
 
-                        <input
-                            type="datetime-local"
-                            value={deadline}
-                            onChange={(e) => setDeadline(e.target.value)}
-                        />
+                            <input
+                                className={styles.input}
+                                type="datetime-local"
+                                value={deadline}
+                                onChange={(e) => setDeadline(e.target.value)}
+                            />
+                        </div>
 
-                        <button onClick={handleSave}>Сохранить</button>
-                        <button onClick={() => setIsEditing(false)}>Отмена</button>
-                    </>
+                        <div className={styles.actions}>
+                            <Button onClick={handleSave} className={`${ButtonStyles.task_button} ${styles.save}`}>Сохранить</Button>
+                            <Button onClick={() => setIsEditing(false)} className={`${ButtonStyles.task_button} ${styles.cancel}`}>Отмена</Button>
+                        </div>
+                    </div>
                 )}
             </li>
 

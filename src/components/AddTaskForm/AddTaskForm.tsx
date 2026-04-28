@@ -3,6 +3,8 @@ import type { TaskPriority } from "../../types/task";
 import { supabase } from "../../shared/api/supabase";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
 import { fromInputToISO } from "../../shared/lib/date";
+import Button from "../UI/Button/Button";
+import styles from "./AddTaskForm.module.css";
 
 export default function AddTaskForm() {
     const [title, setTitle] = useState<string>("");
@@ -32,6 +34,7 @@ export default function AddTaskForm() {
             order: Date.now(),
             deadline_notified_1h: false,
             deadline_notified_24h: false,
+            completed_at: null,
         };
 
         setTasks(prev => [...prev, newTask]);
@@ -72,30 +75,39 @@ export default function AddTaskForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                placeholder="Что надо сделать"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-            />
+        <div className={styles.card}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <input
+                    className={`${styles.field} ${styles.titleInput}`}
+                    type="text"
+                    placeholder="Что надо сделать"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
 
-            <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as TaskPriority)}
-            >
-                <option value="low">Можно неспешно</option>
-                <option value="medium">В ближайшее время</option>
-                <option value="high">Попа уже горит</option>
-            </select>
+                <select
+                    className={`${styles.field} ${styles.select}`}
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                >
+                    <option value="low">Можно неспешно 🧘</option>
+                    <option value="medium">В ближайшее время ⏳</option>
+                    <option value="high">Попа уже горит 🔥</option>
+                </select>
 
-            <input
-                type="datetime-local"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-            />
+                <input
+                    className={`${styles.field} ${styles.date}`}
+                    type="datetime-local"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                />
 
-            <button type="submit">Добавить</button>
-        </form>
+                <div className={styles.actions}>
+                    <Button type="submit">
+                        Добавить
+                    </Button>
+                </div>
+            </form>
+        </div>
     );
 }

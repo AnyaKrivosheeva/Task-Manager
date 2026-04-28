@@ -1,0 +1,55 @@
+.card {
+    background: var(--card);
+    padding: 12px 14px;
+
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+.field {
+    padding: 10px 12px;
+
+    border-radius: 20px;
+    border: 1px solid var(--border);
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 2px 2px #dd39d534;
+}
+
+.titleInput {
+    flex: 1;
+    min-width: 200px;
+}
+
+.select {
+    width: 180px;
+    cursor: pointer;
+    appearance: none;
+    background: var(--card);
+    cursor: pointer;
+}
+
+.date {
+    width: 200px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+}

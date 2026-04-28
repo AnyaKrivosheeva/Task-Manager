@@ -1,18 +1,11 @@
 .btn {
     padding: 6px 12px;
-
     border-radius: 15px;
     border: none;
-
     background-color: var(--primary);
     color: white;
-
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
-    font-weight: 500;
-
     cursor: pointer;
-
     transition: all 0.2s ease;
 }
 
@@ -53,4 +46,33 @@
 .auth {
     padding: 10px 12px;
     border-radius: 8px;
+}
+
+.task_button {
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+}
+
+.task_delete {
+    color: rgb(255, 115, 115);
+    border: 1px solid rgb(255, 115, 115);
+    font-size: 12px;
+    transition: color 0.2s ease;
+    background-color: transparent;
+    padding: 5px 10px;
+}
+
+.task_delete:hover {
+    background-color: rgb(255, 115, 115);
+    color: white;
+}
+
+.task_button:hover {
+    color: var(--primary);
+    background-color: transparent;
+    border: 1px solid var(--primary);
 }

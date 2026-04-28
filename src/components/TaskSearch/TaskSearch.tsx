@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDebounce } from "../../shared/hooks/useDebounce";
+import styles from "./TaskSearch.module.css";
 
 type Props = {
     value: string;
@@ -25,12 +26,7 @@ export default function TaskSearch({ value, onChange }: Props) {
             placeholder="Найти делишки..."
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
-            style={{
-                padding: "5px",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                outline: "none",
-            }}
+            className={styles.input}
         />
     );
 }

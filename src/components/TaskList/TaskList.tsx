@@ -3,20 +3,12 @@ import { useState } from "react";
 import type { FilterType } from "../../types/filter";
 import TaskFilter from "../TaskFilter/TaskFilter";
 import TaskSearch from "../TaskSearch/TaskSearch";
-import {
-    DndContext,
-    closestCenter,
-} from "@dnd-kit/core";
-
-import {
-    arrayMove,
-    SortableContext,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { DragEndEvent } from "@dnd-kit/core";
-
 import { supabase } from "../../shared/api/supabase";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
+import styles from "./TaskList.module.css";
 
 export default function TaskList() {
     const { tasks, setTasks } = useTasksContext();
@@ -47,29 +39,29 @@ export default function TaskList() {
         const oldIndex = sortedTasks.findIndex(t => t.id === active.id);
         const newIndex = sortedTasks.findIndex(t => t.id === over.id);
 
-        const newOrder = arrayMove(sortedTasks, oldIndex, newIndex).map(
+        const reordered = arrayMove(sortedTasks, oldIndex, newIndex).map(
             (task, index) => ({
                 ...task,
                 order: index,
             })
         );
 
-        setTasks(newOrder);
-
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData.user;
-
-        if (!user) return;
-
-        const updates = newOrder.map(task => ({
-            id: task.id,
-            order: task.order,
-            user_id: user.id,
-        }));
+        setTasks(prev =>
+            prev.map(task => {
+                const updated = reordered.find(t => t.id === task.id);
+                return updated ? updated : task;
+            })
+        );
 
         const { error } = await supabase
             .from("tasks")
-            .upsert(updates);
+            .upsert(
+                reordered.map(t => ({
+                    id: t.id,
+                    order: t.order,
+                    user_id: t.user_id,
+                }))
+            );
 
         if (error) {
             console.error("Ошибка при сохранении порядка:", error);
@@ -77,28 +69,31 @@ export default function TaskList() {
     };
 
     return (
-        <div>
-            <h2>Список делишек</h2>
+        <div className={styles.container}>
+            <h2 className={styles.title}>Твои делишки</h2>
 
-            <div style={{ display: "flex", gap: "150px", marginBottom: "10px", alignItems: "center" }}>
-
-                <TaskSearch value={search} onChange={setSearch} />
+            <div className={styles.controls}>
                 <TaskFilter currentFilter={filter} onChange={setFilter} />
+                <TaskSearch value={search} onChange={setSearch} />
             </div>
 
             {filteredTasks.length === 0
-                ? (<p>Пока нет делишек</p>)
+                ? (<p className={styles.empty}>Пока нет делишек 📭</p>)
                 : (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={sortedTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                            <ul style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                {sortedTasks.map(task => (
-                                    <TaskItem key={task.id} task={task} />
-                                ))}
-                            </ul>
-                        </SortableContext>
-                    </DndContext>
-
+                    <div className={styles.listWrapper}>
+                        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <SortableContext
+                                items={sortedTasks.map(t => t.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <ul className={styles.list}>
+                                    {sortedTasks.map(task => (
+                                        <TaskItem key={task.id} task={task} />
+                                    ))}
+                                </ul>
+                            </SortableContext>
+                        </DndContext>
+                    </div>
                 )
             }
         </div>

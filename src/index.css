@@ -12,7 +12,8 @@
 }
 
 * {
-  font-family: "Inter", sans-serif;
+  font-family: "Nunito", sans-serif;
+  font-weight: 500;
   box-sizing: border-box;
 }
 
@@ -20,7 +21,7 @@ body {
   margin: 0 auto;
   padding: 0;
   color: #1f1f1f;
-  background-color: #fff2ff59;
+  background-color: #ffd6ff59;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -29,9 +30,9 @@ body {
 h1,
 h2,
 h3 {
-  font-family: "Nunito", sans-serif;
+  font-family: "Oi", serif;
   margin: 0;
-  font-weight: 800;
+  font-weight: 400;
 }
 
 p {

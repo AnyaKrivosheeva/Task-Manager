@@ -1,0 +1,39 @@
+.container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.button {
+    padding: 6px 12px;
+
+    border-radius: 15px;
+    border: 1px solid var(--border);
+
+    background: white;
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+
+    font-weight: 500;
+}
+
+.active:hover {
+    background: var(--primary-hover);
+    color: #fff;
+}
