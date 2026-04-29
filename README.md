@@ -39,26 +39,20 @@ Web Push API — браузерные push-уведомления
 
 
 # 🚀 Getting Started
-1. Clone the repository
-
 ```bash
+1. Clone the repository
 git clone https://github.com/AnyaKrivosheeva/Task-Manager.git
 cd Task-Manager
 
 3. Install dependencies
-```bash
-npm install
-```bash
-  pnpm install
+npm install / pnpm install
 
 4. Configure environment variables
 Создай файл .env в корне проекта на основе .env.example
 
 5. Run the development server
-```bash
 npm run dev
 
 6. Run tests
-```bash
 npm run test
 
