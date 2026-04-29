@@ -14,7 +14,7 @@ export async function subscribeToPush() {
             import.meta.env.VITE_VAPID_PUBLIC_KEY
         ),
     });
-
+    console.log(Notification.permission);
     return subscription;
 }
 
