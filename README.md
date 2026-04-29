@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+🛠 Tech Stack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend
+React — основной UI-фреймворк
+Vite — быстрый dev-сервер и сборка
+TypeScript — статическая типизация
+React Router — клиентский роутинг
 
-Currently, two official plugins are available:
+UI & UX
+CSS Modules — изолированная стилизация компонентов
+Recharts — визуализация статистики
+@dnd-kit/core — drag-and-drop сортировка задач
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Backend & Infrastructure
+Supabase:
+-PostgreSQL база данных
+-Аутентификация
+-Хранение push-подписок
 
-## React Compiler
+Serverless функции (Supabase Edge Functions)
+-отправка push-уведомлений
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Cron jobs
+-триггер отправки уведомлений (дедлайны задач)
 
-## Expanding the ESLint configuration
+Testing
+Vitest — юнит-тестирование
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Additional Features
+Web Push API — браузерные push-уведомления
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+📦 Summary
+Приложение построено как SPA на React + Vite, с backend-частью на Supabase, включая:
+-аутентификацию
+-хранение данных
+-серверные функции
+-push-уведомления через cron-задачи
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+🚀 Getting Started
+1. Clone the repository
+git clone https://github.com/your-username/your-project.git
+cd your-project
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Install dependencies
+npm install  /  pnpm install
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+3. Configure environment variables
+Создай файл .env в корне проекта на основе .env.example
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4. Run the development server
+npm run dev
+
+5. Run tests
+npm run test
+

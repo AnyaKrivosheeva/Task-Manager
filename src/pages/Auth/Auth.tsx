@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "../../shared/api/supabase";
 import { useNavigate } from "react-router-dom";
 import { subscribeToPush } from "../../shared/lib/push";
+import AuthForm from "../../components/AuthForm/AuthForm";
 
 export default function Auth() {
     const [email, setEmail] = useState("");
@@ -106,47 +107,24 @@ export default function Auth() {
     };
 
     return (
-        <div>
-            <h1>Менеджер для твоих делишек</h1>
-            <h2>{mode === "login" ? "Вход" : "Регистрация"}</h2>
-
-            <form onSubmit={handleSubmit}>
-                <input
-                    placeholder="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-
-                <input
-                    type="password"
-                    placeholder="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-
-                <button type="submit" disabled={loading}>
-                    {loading
-                        ? "Загрузка..."
-                        : mode === "login"
-                            ? "Войти"
-                            : "Зарегистрироваться"}
-                </button>
-            </form>
-
-            {error && (
-                <p style={{ fontSize: "12px", color: "#d30202" }}>
-                    {error}
-                </p>
-            )}
-
-            <button
-                onClick={() => {
-                    setMode(mode === "login" ? "register" : "login");
-                    setError(null);
-                }}
-            >
-                Переключить режим
-            </button>
-        </div >
+        <AuthForm
+            title="Менеджер для твоих делишек"
+            subtitle={mode === "login" ? "Вход" : "Регистрация"}
+            email={email}
+            password={password}
+            onEmailChange={setEmail}
+            onPasswordChange={setPassword}
+            onSubmit={handleSubmit}
+            loading={loading}
+            error={error}
+            submitText={mode === "login" ? "Войти" : "Зарегистрироваться"}
+            footer={
+                <span onClick={() => setMode(mode === "login" ? "register" : "login")}>
+                    {mode === "login"
+                        ? "Нет аккаунта? Зарегистрироваться"
+                        : "Уже есть аккаунт? Войти"}
+                </span>
+            }
+        />
     );
 }

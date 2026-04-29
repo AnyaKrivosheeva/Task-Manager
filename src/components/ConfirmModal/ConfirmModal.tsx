@@ -1,3 +1,7 @@
+import Button from "../UI/Button/Button";
+import styles from "./ConfirmModal.module.css";
+import buttonStyles from "../UI/Button/Button.module.css";
+
 type Props = {
     isOpen: boolean;
     title?: string;
@@ -17,43 +21,24 @@ export default function ConfirmModal({
 
     return (
         <div
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                background: "rgba(0,0,0,0.4)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-            }}
+            className={styles.overlay}
             onClick={onCancel}
         >
             <div
-                style={{
-                    background: "#fff",
-                    padding: "20px",
-                    borderRadius: "8px",
-                    minWidth: "300px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                }}
+                className={styles.modal}
                 onClick={(e) => e.stopPropagation()}
             >
-                {title && <h3>{title}</h3>}
-                <p>{description}</p>
+                {title && <h3 className={styles.title}>{title}</h3>}
+                <p className={styles.description}>{description}</p>
 
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={onConfirm}>
+                <div className={styles.actions}>
+                    <Button onClick={onConfirm} className={buttonStyles.danger}>
                         Да
-                    </button>
+                    </Button>
 
-                    <button onClick={onCancel}>
+                    <Button onClick={onCancel} className={buttonStyles.gray}>
                         Отмена
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

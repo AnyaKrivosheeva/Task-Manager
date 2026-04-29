@@ -14,4 +14,5 @@ export interface Task {
     order: number;
     deadline_notified_1h: boolean;
     deadline_notified_24h: boolean;
+    completed_at: string | null;
 }

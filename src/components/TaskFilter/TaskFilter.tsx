@@ -1,6 +1,7 @@
 import { statusLabels } from "../../shared/lib/statusLabels";
 import type { FilterType } from "../../types/filter";
 import type { TaskStatus } from "../../types/task";
+import styles from "./TaskFilter.module.css";
 
 type Props = {
     currentFilter: FilterType;
@@ -11,13 +12,10 @@ export default function TaskFilter({ currentFilter, onChange }: Props) {
     const statuses = Object.keys(statusLabels) as TaskStatus[];
 
     return (
-        <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+        <div className={styles.container}>
             <button
                 onClick={() => onChange("all")}
-                style={{
-                    cursor: "pointer",
-                    fontWeight: currentFilter === "all" ? "bold" : "normal",
-                }}
+                className={`${styles.button} ${currentFilter === "all" ? styles.active : ""}`}
             >
                 Все
             </button>
@@ -26,10 +24,7 @@ export default function TaskFilter({ currentFilter, onChange }: Props) {
                 <button
                     key={status}
                     onClick={() => onChange(status)}
-                    style={{
-                        cursor: "pointer",
-                        fontWeight: currentFilter === status ? "bold" : "normal",
-                    }}
+                    className={`${styles.button} ${currentFilter === status ? styles.active : ""}`}
                 >
                     {statusLabels[status]}
                 </button>

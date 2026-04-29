@@ -1,0 +1,111 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.title {
+    color: var(--primary);
+    font-size: 25px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.controlsLeft {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.listWrapper {
+    background: #f9cbfb;
+    padding: 15px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    max-height: 400px;
+    /* max-height: 60vh; */
+    overflow-y: auto;
+}
+
+.listWrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.listWrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.listWrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+    cursor: pointer;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 0;
+    margin: 0;
+
+    list-style: none;
+}
+
+.empty {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 16px;
+
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 20px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .listWrapper {
+        padding: 12px;
+        max-height: 60vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        gap: 12px;
+    }
+
+    .controls {
+        gap: 10px;
+    }
+
+    .listWrapper {
+        padding: 10px;
+        border-radius: 12px;
+        max-height: 60vh;
+    }
+
+    .list {
+        gap: 8px;
+    }
+
+    .empty {
+        font-size: 14px;
+    }
+}

@@ -14,6 +14,9 @@ import type { StatsPeriod } from "../../types/stats";
 import { useTasksContext } from "../../shared/providers/TasksProvider";
 import { formatDate, getStatusData } from "./taskStats.utils";
 import type { DayKey } from "./taskStats.utils";
+import Button from "../../components/UI/Button/Button";
+import styles from "./TaskStats.module.css";
+import { periodLabels } from "../../shared/lib/periodLabels";
 
 const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
@@ -69,8 +72,15 @@ export default function TaskStats() {
         const to = toDate.getTime();
 
         return tasks.filter(t => {
-            const time = new Date(t.created_at).getTime();
-            return time >= from && time <= to;
+            const created = new Date(t.created_at).getTime();
+            const completed = t.completed_at
+                ? new Date(t.completed_at).getTime()
+                : null;
+
+            return (
+                (created >= from && created <= to) ||
+                (completed !== null && completed >= from && completed <= to)
+            );
         });
     }, [tasks, fromDate, toDate]);
 
@@ -83,19 +93,24 @@ export default function TaskStats() {
         > = {};
 
         for (const task of filteredTasks) {
-            const key = formatDate(new Date(task.created_at));
+            const createdKey = formatDate(new Date(task.created_at));
 
-            if (!map[key]) {
-                map[key] = { created: 0, completed: 0 };
+            if (!map[createdKey]) {
+                map[createdKey] = { created: 0, completed: 0 };
             }
 
-            map[key].created += 1;
+            map[createdKey].created += 1;
 
-            if (task.status === "done") {
-                map[key].completed += 1;
+            if (task.completed_at) {
+                const completedKey = formatDate(new Date(task.completed_at));
+
+                if (!map[completedKey]) {
+                    map[completedKey] = { created: 0, completed: 0 };
+                }
+
+                map[completedKey].completed += 1;
             }
         }
-
         return map;
     }, [filteredTasks]);
 
@@ -126,71 +141,65 @@ export default function TaskStats() {
         const result = getStatusData(filteredTasks);
 
         return [
-            { name: "Надо сделать", value: result.todo, fill: "#8884d8" },
+            { name: "Надо сделать", value: result.todo, fill: "#677dd2" },
             { name: "В процессе", value: result["in-progress"], fill: "#ffc658" },
             { name: "Сделано", value: result.done, fill: "#82ca9d" },
         ];
     }, [filteredTasks]);
 
-    const getButtonStyle = (value: StatsPeriod) => ({
-        padding: "6px 12px",
-        borderRadius: "6px",
-        border: "1px solid #ccc",
-        cursor: "pointer",
-        backgroundColor: period === value ? "#7955cd" : "#fff",
-        color: period === value ? "#fff" : "#000",
-        fontWeight: period === value ? "bold" : "normal",
-    });
-
     return (
-        <div style={{ marginTop: "30px" }}>
-            <h2>Статистика делишек</h2>
+        <div className={styles.container}>
+            <h2 className={styles.title}>Статистика делишек</h2>
 
-            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                <button onClick={() => setPeriod("day")} style={getButtonStyle("day")}>
-                    Сегодня
-                </button>
-                <button onClick={() => setPeriod("week")} style={getButtonStyle("week")}>
-                    Неделя
-                </button>
-                <button onClick={() => setPeriod("month")} style={getButtonStyle("month")}>
-                    Месяц
-                </button>
-                <button onClick={() => setPeriod("all")} style={getButtonStyle("all")}>
-                    Все время
-                </button>
+            <div className={styles.filters}>
+                {Object.entries(periodLabels).map(([key, label]) => {
+                    const p = key as StatsPeriod;
+
+                    return (
+                        <Button
+                            key={p}
+                            onClick={() => setPeriod(p)}
+                            className={[
+                                styles.btn,
+                                period === p && styles.btn_active,
+                            ].filter(Boolean).join(" ")}
+                        >
+                            {label}
+                        </Button>
+                    );
+                })}
             </div>
 
             {isEmpty
                 ? (
-                    <div
-                        style={{
-                            marginTop: "60px",
-                            textAlign: "center",
-                            color: "#888",
-                            fontSize: "18px",
-                        }}
-                    >
+                    <div className={styles.empty}>
                         За выбранный период задач нет 📭
-                    </div>)
+                    </div>
+                )
                 : (
-                    < div style={{ display: "flex", gap: "30px", flexDirection: "column" }}>
+                    < div className={styles.charts}>
                         <PieChart width={400} height={350}>
-                            <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={120} label />
+                            <Pie
+                                data={statusData}
+                                dataKey="value"
+                                nameKey="name"
+                                outerRadius={100}
+                                label
+                            />
                             <Tooltip />
                             <Legend />
                         </PieChart>
 
-                        <div style={{ width: "100%", maxWidth: "700px", margin: "30px auto", height: 300 }}>
+                        <div className={styles.barWrapper}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData}>
-                                    <XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
-                                    <YAxis />
+                                <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 30 }}>
+                                    <XAxis dataKey="date" angle={-30} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
+                                    <YAxis allowDecimals={false} tickCount={3} />
                                     <Tooltip />
-                                    <Legend />
+                                    <Legend verticalAlign="bottom" height={40} />
 
-                                    <Bar dataKey="created" fill="#7955cd" name="Создано" />
-                                    <Bar dataKey="completed" fill="#3ece75" name="Выполнено" />
+                                    <Bar dataKey="created" fill="#677dd2" radius={[6, 6, 0, 0]} maxBarSize={30} name="Создано" />
+                                    <Bar dataKey="completed" fill="#82ca9d" radius={[6, 6, 0, 0]} maxBarSize={30} name="Выполнено" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
