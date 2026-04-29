@@ -1,35 +1,36 @@
-🛠 Tech Stack
+# Task Manager 🗂️
+A simple task management app with drag-and-drop, statistics and notifications.
 
-Frontend
-React — основной UI-фреймворк
-Vite — быстрый dev-сервер и сборка
-TypeScript — статическая типизация
-React Router — клиентский роутинг
+## 🛠 Tech Stack
 
-UI & UX
-CSS Modules — изолированная стилизация компонентов
-Recharts — визуализация статистики
-@dnd-kit/core — drag-and-drop сортировка задач
+### Frontend
+- React
+- Vite
+- TypeScript
+- React Router
 
-Backend & Infrastructure
-Supabase:
--PostgreSQL база данных
--Аутентификация
--Хранение push-подписок
+### State & Architecture
+- React Context API
+- Feature-based folder structure
 
-Serverless функции (Supabase Edge Functions)
--отправка push-уведомлений
+### UI & Styling
+- CSS Modules
+- Recharts (data visualization)
+- @dnd-kit/core (drag & drop)
 
-Cron jobs
--триггер отправки уведомлений (дедлайны задач)
+### Backend
+- Supabase (Auth + Database + Edge Functions)
+- PostgreSQL database
+- Serverless functions for push notifications
+- Cron jobs for scheduled reminders
 
-Testing
-Vitest — юнит-тестирование
+### Testing
+- Vitest
 
-Additional Features
+### Additional Features
 Web Push API — браузерные push-уведомления
 
-📦 Summary
+# 📦 Summary
 Приложение построено как SPA на React + Vite, с backend-частью на Supabase, включая:
 -аутентификацию
 -хранение данных
@@ -37,10 +38,10 @@ Web Push API — браузерные push-уведомления
 -push-уведомления через cron-задачи
 
 
-🚀 Getting Started
+# 🚀 Getting Started
 1. Clone the repository
-git clone https://github.com/your-username/your-project.git
-cd your-project
+git clone https://github.com/AnyaKrivosheeva/Task-Manager.git
+cd Task-Manager
 
 2. Install dependencies
 npm install  /  pnpm install
