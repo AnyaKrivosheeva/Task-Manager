@@ -53,3 +53,27 @@
     display: flex;
     justify-content: flex-end;
 }
+
+@media (max-width: 768px) {
+    .form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .titleInput {
+        min-width: 100%;
+    }
+
+    .select {
+        width: 100%;
+    }
+
+    .date {
+        width: 100%;
+    }
+
+    .actions {
+        width: 100%;
+    }
+}
+

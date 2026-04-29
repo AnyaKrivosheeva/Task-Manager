@@ -179,7 +179,13 @@ export default function TaskStats() {
                 : (
                     < div className={styles.charts}>
                         <PieChart width={400} height={350}>
-                            <Pie data={statusData} dataKey="value" nameKey="name" outerRadius={120} label />
+                            <Pie
+                                data={statusData}
+                                dataKey="value"
+                                nameKey="name"
+                                outerRadius={100}
+                                label
+                            />
                             <Tooltip />
                             <Legend />
                         </PieChart>
@@ -187,7 +193,7 @@ export default function TaskStats() {
                         <div className={styles.barWrapper}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 30 }}>
-                                    <XAxis dataKey="date" angle={-30} textAnchor="end" height={80} />
+                                    <XAxis dataKey="date" angle={-30} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
                                     <YAxis allowDecimals={false} tickCount={3} />
                                     <Tooltip />
                                     <Legend verticalAlign="bottom" height={40} />

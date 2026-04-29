@@ -68,3 +68,44 @@
 
     margin-top: 30px;
 }
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 20px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .listWrapper {
+        padding: 12px;
+        max-height: 60vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        gap: 12px;
+    }
+
+    .controls {
+        gap: 10px;
+    }
+
+    .listWrapper {
+        padding: 10px;
+        border-radius: 12px;
+        max-height: 60vh;
+    }
+
+    .list {
+        gap: 8px;
+    }
+
+    .empty {
+        font-size: 14px;
+    }
+}

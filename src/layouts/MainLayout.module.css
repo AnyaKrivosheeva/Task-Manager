@@ -40,3 +40,20 @@
     background-color: var(--primary-hover);
     color: white;
 }
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        gap: 20px;
+    }
+
+    .navigation {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .link {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+}
