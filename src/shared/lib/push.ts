@@ -4,7 +4,6 @@ export async function subscribeToPush() {
     const existing = await registration.pushManager.getSubscription();
 
     if (existing) {
-        console.log("Push subscription already exists");
         return existing;
     }
 
@@ -14,7 +13,9 @@ export async function subscribeToPush() {
             import.meta.env.VITE_VAPID_PUBLIC_KEY
         ),
     });
-    console.log(Notification.permission);
+    if (import.meta.env.DEV) {
+        console.log(Notification.permission);
+    }
     return subscription;
 }
 

@@ -14,26 +14,17 @@ export default function Auth() {
     const navigate = useNavigate();
 
     const setupPush = async (userId: string) => {
-        console.log("STEP 1 userId:", userId);
         try {
             const permission =
                 Notification.permission === "granted"
                     ? "granted"
                     : await Notification.requestPermission();
-            console.log("STEP 2 permission:", permission);
 
             if (permission !== "granted") return;
 
             const subscription = await subscribeToPush();
-            console.log("STEP 3 subscription:", subscription);
 
             if (!subscription?.endpoint) return;
-
-            console.log("UPSERT payload:", {
-                user_id: userId,
-                endpoint: subscription.endpoint,
-                subscription,
-            });
 
             const { error } = await supabase
                 .from("push_subscriptions")
@@ -56,8 +47,11 @@ export default function Auth() {
         }
     };
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (loading) return;
+
         setError(null);
         setLoading(true);
 
@@ -98,8 +92,6 @@ export default function Auth() {
                     return;
                 }
                 const { data: userData } = await supabase.auth.getUser();
-                const { data } = await supabase.auth.getUser();
-                console.log("AUTH USER:", data.user);
 
                 userId = userData.user?.id ?? null;
             }

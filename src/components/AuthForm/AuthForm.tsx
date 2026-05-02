@@ -8,7 +8,7 @@ type Props = {
     onEmailChange: (v: string) => void;
     onPasswordChange: (v: string) => void;
 
-    onSubmit: (e: React.SubmitEvent) => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 
     loading?: boolean;
     error?: string | null;
@@ -60,7 +60,7 @@ export default function AuthForm({
                         onChange={(e) => onPasswordChange(e.target.value)}
                     />
 
-                    <Button type="submit" className={ButtonStyles.auth}>
+                    <Button type="submit" className={ButtonStyles.auth} disabled={loading}>
                         {loading ? "Загрузка..." : submitText}
                     </Button>
                 </form>

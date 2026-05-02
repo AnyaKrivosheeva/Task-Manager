@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../api/supabase";
 import type { Task } from "../../types/task";
+import { useAuth } from "./useAuth";
 
 export function useTasks() {
+    const { user } = useAuth();
+
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const loadTasks = async () => {
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData.user;
-
+    const loadTasks = useCallback(async () => {
         if (!user) {
             setTasks([]);
             setLoading(false);
             return;
         }
+
+        setLoading(true);
 
         const { data, error } = await supabase
             .from("tasks")
@@ -23,37 +25,21 @@ export function useTasks() {
             .order("order", { ascending: true });
 
         if (error) {
-            console.error(error);
             setLoading(false);
             return;
         }
 
-        setTasks(data || []);
+        setTasks(data ?? []);
         setLoading(false);
-    };
+    }, [user]);
 
     useEffect(() => {
         loadTasks();
-    }, []);
+    }, [loadTasks]);
 
     useEffect(() => {
-        const { data: listener } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
-                if (!session?.user) {
-                    setTasks([]);
-                    return;
-                }
+        if (!user) return;
 
-                loadTasks();
-            }
-        );
-
-        return () => {
-            listener.subscription.unsubscribe();
-        };
-    }, []);
-
-    useEffect(() => {
         const channel = supabase
             .channel("tasks-global")
             .on(
@@ -62,20 +48,18 @@ export function useTasks() {
                     event: "*",
                     schema: "public",
                     table: "tasks",
+                    filter: `user_id=eq.${user.id}`,
                 },
-                (payload) => {
-                    console.log("REALTIME EVENT:", payload);
+                () => {
                     loadTasks();
                 }
             )
-            .subscribe((status) => {
-                console.log("REALTIME STATUS:", status);
-            });
+            .subscribe();
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [user, loadTasks]);
 
     return {
         tasks,

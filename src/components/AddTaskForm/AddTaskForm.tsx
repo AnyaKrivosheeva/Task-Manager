@@ -5,6 +5,7 @@ import { useTasksContext } from "../../shared/providers/TasksProvider";
 import { fromInputToISO } from "../../shared/lib/date";
 import Button from "../UI/Button/Button";
 import styles from "./AddTaskForm.module.css";
+import { useAuth } from "../../shared/hooks/useAuth";
 
 export default function AddTaskForm() {
     const [title, setTitle] = useState<string>("");
@@ -13,13 +14,12 @@ export default function AddTaskForm() {
 
     const { setTasks } = useTasksContext();
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
+    const { user } = useAuth();
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!title.trim()) return;
-
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData.user;
 
         if (!user) return;
 
@@ -51,7 +51,7 @@ export default function AddTaskForm() {
         }
 
         try {
-            await fetch("https://aqrneetsadfpyvsmfvyh.supabase.co/functions/v1/send-push", {
+            await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-push`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { supabase } from "../shared/api/supabase";
 import { useState } from "react";
 import ConfirmModal from "../components/ConfirmModal/ConfirmModal";
@@ -8,12 +8,10 @@ import styles from "./MainLayout.module.css";
 
 export default function MainLayout() {
     const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-    const navigate = useNavigate();
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setIsLogoutOpen(false);
-        navigate("/auth");
     };
 
     return (

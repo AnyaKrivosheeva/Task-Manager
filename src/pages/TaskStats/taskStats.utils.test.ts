@@ -23,6 +23,7 @@ describe("TaskStats utils", () => {
                 order: 1,
                 deadline_notified_1h: false,
                 deadline_notified_24h: false,
+                completed_at: null
             },
             {
                 id: "2",
@@ -36,6 +37,7 @@ describe("TaskStats utils", () => {
                 order: 2,
                 deadline_notified_1h: false,
                 deadline_notified_24h: false,
+                completed_at: null
             },
             {
                 id: "3",
@@ -49,6 +51,7 @@ describe("TaskStats utils", () => {
                 order: 3,
                 deadline_notified_1h: true,
                 deadline_notified_24h: true,
+                completed_at: null
             },
         ];
 

@@ -13,11 +13,13 @@ export default function Button({
     className = "",
     children,
     type = "button",
+    disabled = false,
 }: Props) {
     return (
         <button
             type={type}
             onClick={onClick}
+            disabled={disabled}
             className={`${styles.btn} ${className}`}
         >
             {children}
